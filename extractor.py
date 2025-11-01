@@ -10,7 +10,7 @@ from datetime import datetime
 
 from docling.document_converter import DocumentConverter
 from langchain_google_vertexai import ChatVertexAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from typing_extensions import TypedDict
@@ -62,11 +62,14 @@ class DoclingExtractor:
     PHOENIX_COLLECTOR_ENDPOINT = os.environ.get("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006")
     _phoenix_initialized = False
     
-    def __init__(self, output_dir: str = "raw_outputs"):
+    def __init__(self, output_dir: str = "raw_outputs", max_attempts: int = None):
         """Initialize extractor with output directory and LangGraph workflow."""
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         self.converter = DocumentConverter()
+        
+        # Set max attempts (use provided value or default)
+        self.max_attempts = max_attempts or self.MAX_ATTEMPTS
         
         # Initialize LLM for extraction (Google Gemini)
         self.llm = ChatVertexAI(
@@ -86,6 +89,14 @@ class DoclingExtractor:
     def _setup_phoenix_tracing(cls):
         """Initialize Arize Phoenix tracing for LLM observability (local mode)."""
         if cls._phoenix_initialized:
+            return
+
+        # Check if Phoenix is disabled via environment variable
+        phoenix_enabled = os.environ.get('PHOENIX_ENABLED', 'true').lower()
+        if phoenix_enabled == 'false':
+            print("⚠️  Phoenix tracing disabled via PHOENIX_ENABLED=false")
+            print("LLM calls will not be traced")
+            cls._phoenix_initialized = True  # Mark as initialized to avoid repeated checks
             return
 
         try:
@@ -268,7 +279,7 @@ class DoclingExtractor:
         logs = state["logs"]
         attempt = state["attempt"]
         
-        logs.append({"level": "info", "message": f"Attempt {attempt}/{self.MAX_ATTEMPTS}"})
+        logs.append({"level": "info", "message": f"Attempt {attempt}/{self.max_attempts}"})
         
         try:
             # Save raw output for this attempt
@@ -336,7 +347,7 @@ class DoclingExtractor:
         else:
             # Increment attempt for retry
             new_attempt = state["attempt"] + 1
-            if new_attempt <= self.MAX_ATTEMPTS:
+            if new_attempt <= self.max_attempts:
                 logs.append({"level": "warning", "message": f"Still missing {len(missing)} fields: {', '.join(missing)}. Retrying..."})
             else:
                 logs.append({"level": "warning", "message": f"Still missing {len(missing)} fields: {', '.join(missing)}. Max attempts reached."})
@@ -355,7 +366,7 @@ class DoclingExtractor:
         
         if not missing:
             return "complete"
-        elif attempt > self.MAX_ATTEMPTS:
+        elif attempt > self.max_attempts:
             return "complete"
         else:
             return "retry"
@@ -366,7 +377,7 @@ class DoclingExtractor:
         missing = state["missing_fields"]
         
         if missing:
-            error_msg = f"Failed to extract all fields after {self.MAX_ATTEMPTS} attempts"
+            error_msg = f"Failed to extract all fields after {self.max_attempts} attempts"
             logs.append({"level": "error", "message": error_msg})
             
             # Save comprehensive audit log

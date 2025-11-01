@@ -12,12 +12,18 @@ env/
 dist/
 build/
 
+# Coverage
+.coverage
+htmlcov/
+coverage.xml
+
 # Environment
 .env
 
 # Uploads and outputs
 uploads/
 raw_outputs/
+output/
 
 # Node
 frontend/node_modules/

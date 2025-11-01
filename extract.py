@@ -103,6 +103,12 @@ Examples:
     
     parser.add_argument('fields_file', help='JSON file containing field definitions and types')
     parser.add_argument('pdf_file', help='PDF file to extract fields from')
+    parser.add_argument(
+        '--max-attempts', 
+        type=int, 
+        default=5,
+        help='Maximum retry attempts for extraction (default: 5)'
+    )
     
     args = parser.parse_args()
     
@@ -120,7 +126,7 @@ Examples:
     
     # Initialize extractor
     print("Initializing Docling extractor...")
-    extractor = DoclingExtractor()
+    extractor = DoclingExtractor(max_attempts=args.max_attempts)
     
     # Process PDF
     print("Extracting fields...")
