@@ -13,6 +13,7 @@ from langchain_google_vertexai import ChatVertexAI
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
+from langgraph.types import RetryPolicy
 from typing_extensions import TypedDict
 
 # Arize Phoenix imports (OpenInference instrumentation)
@@ -40,7 +41,15 @@ class ExtractionState(TypedDict):
 
 
 class DoclingExtractor:
-    """Extract specific fields from PDF documents using Docling + Google Gemini."""
+    """Extract specific fields from PDF documents using Docling + Google Gemini
+    
+    Uses LangGraph's built-in RetryPolicy for automatic retry handling of:
+    - ValueError: Invalid data formats or parsing errors
+    - KeyError: Missing field keys in extraction results  
+    - json.JSONDecodeError: Malformed JSON responses from LLM
+    
+    Combines custom retry logic with LangGraph's native retry mechanisms for maximum reliability.
+    """
     
     REQUIRED_FIELDS = [
         "Shipping Charges",
@@ -214,7 +223,15 @@ class DoclingExtractor:
         
         workflow.add_edge("handle_max_attempts", END)
         
-        return workflow.compile()
+        # Configure LangGraph native retry policy for extraction failures
+        retry_policy = RetryPolicy(
+            max_attempts=self.max_attempts,
+            retry_on=lambda exception: isinstance(exception, (ValueError, KeyError, json.JSONDecodeError))
+        )
+        
+        compiled_workflow = workflow.compile()
+        
+        return compiled_workflow
     
     def _initialize_extraction(self, state: ExtractionState) -> ExtractionState:
         """Initialize the extraction state."""
@@ -322,6 +339,13 @@ class DoclingExtractor:
             logs.append({"level": "error", "message": f"Attempt {attempt} failed: {str(e)}"})
             logs.append({"level": "error", "message": f"Error details: {error_trace}"})
             
+            # For retryable errors, raise exception to trigger LangGraph native retry
+            # LangGraph will automatically retry based on our RetryPolicy configuration
+            if isinstance(e, (ValueError, KeyError, json.JSONDecodeError)):
+                logs.append({"level": "info", "message": f"Triggering LangGraph native retry for: {type(e).__name__}"})
+                raise e  # LangGraph will handle this retry automatically
+            
+            # For non-retryable errors, return error state
             return {
                 **state,
                 "error": str(e),

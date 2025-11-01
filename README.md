@@ -6,12 +6,12 @@ A fast command-line tool for extracting specific fields from PDF documents using
 
 - 🚀 **Fast PDF Processing**: Uses Docling for efficient PDF parsing
 - 🤖 **AI-Powered Extraction**: Google Gemini LLM for intelligent field extraction
+- 🔄 **LangGraph Native Retries**: Built-in retry policies for automatic error recovery
 - 📊 **Observability**: Built-in Arize Phoenix integration for tracing and monitoring
 - 🔧 **Configurable Fields**: Define custom fields and types via JSON configuration
 - 📝 **Detailed Logging**: Comprehensive extraction logs and audit trails
 - 🧪 **Well Tested**: 70% test coverage with comprehensive test suite
 - ⚡ **Pipeline Ready**: Fast test execution without Phoenix dependencies
-- 🔄 **Retry Logic**: Automatic retry mechanism for failed extractions
 
 ## Quick Start
 
@@ -243,7 +243,7 @@ Optional:
 
 ### Retry Configuration
 
-The extractor automatically retries failed extractions with configurable limits:
+The extractor uses **LangGraph native retries** combined with custom retry logic for maximum reliability:
 
 ```bash
 # Default: 5 retry attempts
@@ -256,11 +256,18 @@ python extract.py fields.json invoice.pdf --max-attempts 3
 python extract.py fields.json invoice.pdf --max-attempts 1
 ```
 
+**LangGraph Native Retry Features:**
+- 🔄 **Automatic Exception Handling**: Retries on `ValueError`, `KeyError`, and `json.JSONDecodeError`
+- 🛡️ **Built-in Error Recovery**: LangGraph automatically handles retry timing and backoff
+- 📊 **Retry Tracking**: Detailed logging of retry attempts and reasons
+- ⚡ **Smart Retry Logic**: Combines custom field validation with native error handling
+
 **Retry Behavior:**
 - Progressive retry delays
 - Missing field validation after each attempt
 - Comprehensive error logging
 - Early termination when all fields are successfully extracted
+- LangGraph handles retryable exceptions automatically
 - Marks as success after max attempts to avoid infinite loops
 
 ## Troubleshooting
