@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test runner script with Phoenix control options.
+Test runner script for QuickExtract with Phoenix control options.
 
 Usage:
     python run_tests.py [--phoenix] [--coverage] [--verbose] [--integration]
@@ -107,7 +107,7 @@ def run_tests(phoenix_enabled=False, coverage=False, verbose=False):
 
 def run_integration_test(phoenix_enabled=False):
     """Run a quick integration test with the sample PDF."""
-    print("\n🔧 Running Integration Test...")
+    print("\n🔧 Running QuickExtract Integration Test...")
     print("=" * 50)
     
     # Set environment variables
@@ -185,7 +185,7 @@ Examples:
     
     args = parser.parse_args()
     
-    print("🚀 PDF Extractor Test Suite")
+    print("🚀 QuickExtract Test Suite")
     print("=" * 50)
     
     # Run integration test only if requested

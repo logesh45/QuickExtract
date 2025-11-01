@@ -1,6 +1,6 @@
-# PDF Field Extraction CLI
+# QuickExtract
 
-A powerful command-line tool for extracting specific fields from PDF documents using Docling and Google Gemini AI with Arize Phoenix observability.
+A fast command-line tool for extracting specific fields from PDF documents using Docling and Google Gemini AI with Arize Phoenix observability.
 
 ## Features
 
@@ -25,8 +25,8 @@ A powerful command-line tool for extracting specific fields from PDF documents u
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd docling-flow
+   git clone https://github.com/logesh45/QuickExtract.git
+   cd QuickExtract
    ```
 
 2. **Set up virtual environment**
@@ -188,7 +188,7 @@ python -m unittest test_extractor.TestDoclingExtractor -v
 ### Project Structure
 
 ```
-.
+QuickExtract/
 ├── extractor.py          # Core extraction logic with Docling + Gemini
 ├── extract.py            # CLI interface
 ├── test_extractor.py     # Comprehensive test suite (42 tests)
@@ -307,7 +307,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-1. Fork the repository
+1. Fork the [QuickExtract](https://github.com/logesh45/QuickExtract) repository
 2. Create a feature branch
 3. Add tests for new functionality
 4. Ensure all tests pass: `python run_tests.py`

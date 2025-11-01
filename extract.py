@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CLI tool for extracting specific fields from PDF documents.
+QuickExtract - Fast PDF field extraction CLI.
 Usage: extract.py fields.json invoice-sample.pdf
 
 The fields.json defines what fields to extract and their types:
@@ -92,7 +92,7 @@ def save_results(results: Dict[str, Any], pdf_name: str, output_dir: Path) -> Pa
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Extract specific fields from PDF documents using Docling",
+        description="QuickExtract: Extract specific fields from PDF documents using Docling",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
