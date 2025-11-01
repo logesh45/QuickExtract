@@ -1,0 +1,7 @@
+{
+  "shippingCharges": "number",
+  "Insurance": "number",
+  "BILL TO address": "string",
+  "INVOICE NUMBER": "string",
+  "Date": "date"
+}

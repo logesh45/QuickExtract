@@ -1,0 +1,10 @@
+docling
+flask>=3.0.0
+flask-cors>=4.0.0
+langchain
+langchain-google-vertexai
+langgraph
+arize-phoenix>=4.0.0
+openinference-instrumentation-langchain
+python-dotenv>=1.0.0
+coverage>=7.0.0
